@@ -11,7 +11,7 @@ jobs:
             - name: Checkout Repository
               uses: actions/checkout@v3
             - name: Validate Docker Compose
-              run: docker-compose -f docker-compose.yml config
+              run: docker compose -f docker-compose.yml config
             
             - name: Start Containers
               run: |
