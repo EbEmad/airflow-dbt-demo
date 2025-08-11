@@ -82,7 +82,6 @@ ENV DBT_PROFILES_DIR=/opt/dbt/profiles \
     DBT_LOG_PATH=/opt/dbt/logs
 
 # Entrypoint for DBT
-COPY scripts/dbt-entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+COPY scripts/dbt.sh /dbt.sh
+ENTRYPOINT ["/dbt.sh"]
 

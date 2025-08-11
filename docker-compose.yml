@@ -26,7 +26,7 @@ services:
     restart: always
   # Simple single-container mode: Airflow + DBT
   airflow:
-    profiles: ["simple"]
+    #profiles: ["simple"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -50,7 +50,7 @@ services:
     command: webserver
   # Airflow Webserver
   airflow-webserver:
-    profiles: ["full"]
+    #profiles: ["full"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -84,7 +84,7 @@ services:
 
   # Airflow Scheduler
   airflow-scheduler:
-    profiles: ["full"]
+    #profiles: ["full"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -109,7 +109,7 @@ services:
     command: scheduler
   # Airflow Worker
   airflow-worker:
-    profiles: ["full"]
+    #profiles: ["full"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -133,7 +133,7 @@ services:
 
     # Airflow Flower (Monitoring)
   airflow-flower:
-    profiles: ["full"]
+    #profiles: ["full"]
     build:
       context: .
       dockerfile: Dockerfile
@@ -159,7 +159,7 @@ services:
 
   # DBT Service
   dbt:
-    profiles: ["full"]
+    #profiles: ["full"]
     build:
       context: .
       dockerfile: Dockerfile
