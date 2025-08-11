@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   # PostgreSQL Database for DBT and Airflow
   postgres:
@@ -7,6 +8,8 @@ services:
       POSTGRES_USER: airflow
       POSTGRES_PASSWORD: airflow
       POSTGRES_DB: airflow
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
@@ -14,7 +17,7 @@ services:
       interval: 5s
       retries: 5
     restart: always
-  
+
   # Redis for Airflow Celery
   redis:
     image: redis:latest
@@ -24,6 +27,7 @@ services:
       timeout: 30s
       retries: 50
     restart: always
+
   # Simple single-container mode: Airflow + DBT
   airflow:
     #profiles: ["simple"]
@@ -45,9 +49,10 @@ services:
       - ./plugins:/opt/airflow/plugins
       - ./dbt:/opt/airflow/dbt
     ports:
-      - "8080:8080"
+      - "8081:8080"
     restart: always
     command: webserver
+
   # Airflow Webserver
   airflow-webserver:
     #profiles: ["full"]
@@ -107,6 +112,7 @@ services:
       - ./dbt:/opt/airflow/dbt
     restart: always
     command: scheduler
+
   # Airflow Worker
   airflow-worker:
     #profiles: ["full"]
@@ -131,7 +137,7 @@ services:
     restart: always
     command: celery worker
 
-    # Airflow Flower (Monitoring)
+  # Airflow Flower (Monitoring)
   airflow-flower:
     #profiles: ["full"]
     build:
@@ -174,8 +180,5 @@ services:
     working_dir: /opt/dbt
     restart: always
 
-
-
-
-  
-
+volumes:
+  postgres-db-volume:

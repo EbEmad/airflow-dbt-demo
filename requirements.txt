@@ -5,7 +5,7 @@
 apache-airflow-providers-postgres==5.7.1
 apache-airflow-providers-http==4.7.0
 apache-airflow-providers-slack==8.2.0
-apache-airflow-providers-email==3.2.0
+#apache-airflow-providers-email==3.2.0
 
 # DBT core and adapters
 dbt-core==1.7.3
@@ -24,7 +24,8 @@ polars==0.20.0
 
 # Database connectors
 psycopg2-binary==2.9.7
-sqlalchemy==2.0.21
+sqlalchemy>=1.3.24,<2.0.0
+
 
 # Monitoring and logging
 prometheus-client==0.17.1
@@ -40,7 +41,8 @@ colorama==0.4.6
 # Testing and development
 pytest==7.4.2
 pytest-cov==4.1.0
-pytest-dbt==1.4.0
+pytest-dbt==0.1.1
 black==23.9.1
 flake8==6.1.0
 mypy==1.5.1
+protobuf>=4.21.0

@@ -1,19 +1,16 @@
-#!/bin/bash
-set -e
-# Initialize/Migrate Airflow database
-airflow db migrate || airflow db init
+#!/usr/bin/env bash
 
-# Create admin user if not exists
+echo "Initializing the Airflow database..."
+airflow db init
 
-if ! airflow users list | grep -q "admin"; then
-    airflow users create \
-        --username admin \
-        --firstname Ebrahim \
-        --lastname Emad \
-        --role Admin \
-        --email admin@example.com
-        --password admin
-fi
+echo "Creating admin user..."
+airflow users create \
+    --username admin \
+    --firstname FIRST_NAME \
+    --lastname LAST_NAME \
+    --role Admin \
+    --email admin@example.com \
+    --password admin
 
-# Start the requested service
-exec airflow "$@"
+echo "Starting $1..."
+exec airflow "$1"
