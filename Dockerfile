@@ -1,105 +1,75 @@
-# ===============================
-# Base image for Airflow targets
-# ===============================
-FROM apache/airflow:2.9.3-python3.11 AS airflow-base
+FROM apache/airflow:2.5.1 as airflow
 
+COPY requirements-ariflow.txt /requirements.txt
+# Install Python dependencies
+RUN pip install --no-cache-dir -r /requirements.txt
+
+# Copy the DAGs directory to the Airflow home directory
+COPY dags/ /opt/airflow/dags/
+
+# Copy the entrypoint script
+COPY  scripts/Airflow.sh /Airflow.sh
+
+# Switch to the root user to change permissions
 USER root
+RUN chmod +x /Airflow.sh
+RUN apt-get update && apt-get install -y git iputils-ping
 
-# Keep image small and patched
-RUN set -eux; \
-    apt-get update; \
-    echo 'msodbcsql18 msodbcsql/ACCEPT_EULA boolean true' | debconf-set-selections; \
-    apt-get -y dist-upgrade; \
-    apt-get install -y --no-install-recommends \
-    curl \
-    ; \
-    apt-get clean; \
-    rm -rf /var/lib/apt/lists/*
-# Common entrypoint for Airflow services
-COPY scripts/Airflow.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
 
-# Back to airflow user
+# Switch back to the airflow user
 USER airflow
-
-# Python deps for Airflow (Airflow core is already in the base image)
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
-
-# Common directories
-RUN mkdir -p /opt/airflow/dbt /opt/airflow/logs /opt/airflow/plugins
-
-WORKDIR /opt/airflow
+ENV DBT_PROFILES_DIR=/opt/airflow/dbt/profiles
 
 
-# Individual Airflow targets (webserver/scheduler/worker/flower use the same image)
-FROM airflow-base AS airflow
-ENTRYPOINT ["/entrypoint.sh"]
+# Set the entrypoint to the entrypoint script
+ENTRYPOINT ["/Airflow.sh"]
 
-# ======================================
-# Simple target: Airflow + DBT in one
-# ======================================
-FROM airflow-base AS airflow_simple
 
-USER root
-RUN set -eux; \
-    apt-get update; \
-    echo 'msodbcsql18 msodbcsql/ACCEPT_EULA boolean true' | debconf-set-selections; \
-    apt-get -y dist-upgrade; \
-    apt-get install -y --no-install-recommends \
-    postgresql-client \
-    ; \
-    apt-get clean; \
-    rm -rf /var/lib/apt/lists/*
-
-USER airflow
-# Install DBT and common adapters
-COPY requirements.txt /tmp/requirements.txt
-RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
-    pip install --no-cache-dir -r /tmp/requirements.txt
-
-ENTRYPOINT ["/entrypoint.sh"]
-
-# ===============================
-# DBT service target
 FROM python:3.11-slim AS dbt
 
 ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1
 
+# System deps
 RUN set -eux; \
-    apt-get update && \
-    echo 'msodbcsql18 msodbcsql/ACCEPT_EULA boolean true' | debconf-set-selections && \
-    apt-get -y dist-upgrade && \
+    apt-get update; \
+    apt-get -y upgrade; \
     apt-get install -y --no-install-recommends \
     build-essential \
     git \
     curl \
     wget \
-    postgresql-client && \
-    apt-get clean && \
+    postgresql-client \
+    ; \
+    apt-get clean; \
     rm -rf /var/lib/apt/lists/*
 
 # Create dbt user
 RUN useradd -m -s /bin/bash dbt
 
+# Install pytz explicitly
+RUN pip install --no-cache-dir pytz
+
 WORKDIR /opt/dbt
 
 # Install Python packages
-COPY requirements.txt /tmp/requirements.txt
+COPY requirements-dbt.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
+    # Install only dbt-related deps for dbt stage
     grep -E "^(dbt-|dbt-core)" /tmp/requirements.txt > /tmp/requirements-dbt-only.txt && \
-    pip install --no-cache-dir --upgrade -r /tmp/requirements-dbt-only.txt
+    pip install --no-cache-dir -r /tmp/requirements-dbt-only.txt
 
-RUN chown -R dbt:dbt /opt/dbt
+# Paths
+RUN mkdir -p /opt/dbt/profiles /opt/dbt/logs /opt/dbt/target && \
+    chown -R dbt:dbt /opt/dbt
 
 # Entrypoint for DBT
-COPY scripts/dbt.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
+COPY scripts/dbt.sh /dbt.sh
+RUN chmod +x /dbt.sh
 USER dbt
+
 ENV DBT_PROFILES_DIR=/opt/dbt/profiles \
     DBT_LOG_PATH=/opt/dbt/logs
 
-ENTRYPOINT ["/entrypoint.sh"]
+
+ENTRYPOINT ["/dbt.sh"]
