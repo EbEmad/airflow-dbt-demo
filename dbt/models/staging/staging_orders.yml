@@ -5,6 +5,8 @@ sources:
     tables:
       - name: orders_raw
       - name: customers_raw
+      - name: products
+      - name: order_items
 
 models:
   - name: stg_orders
