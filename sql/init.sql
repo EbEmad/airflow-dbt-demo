@@ -1,20 +1,21 @@
 -- SQL script to initialize the database schema
-create table  if not exists orders(
-    order_id INT PRIMARY KEY,
-    customer_id INT,
-    product_id INT,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    order_status VARCHAR(50),
-    order_total DECIMAL(10, 2),
-    shipping_address TEXT,
-    _loaded_at TIMESTAMP,
-    _source_file VARCHAR(255)
-) ;
+create table if not exists orders_raw (
+    o_id INT PRIMARY KEY,
+    cust INT,
+    prod INT,
+    crt TIMESTAMP,
+    upd TIMESTAMP,
+    status VARCHAR(50),
+    total DECIMAL(10, 2),
+    addr TEXT,
+    load_ts TIMESTAMP,
+    src_file VARCHAR(255)
+);
 
-INSERT INTO orders (
-    order_id, customer_id, product_id, created_at, updated_at,
-    order_status, order_total, shipping_address, _loaded_at, _source_file
+
+INSERT INTO orders_raw (
+    o_id, cust, prod, crt, upd,
+    status, total, addr, load_ts, src_file
 ) VALUES
 (1, 101, 501, '2025-08-01 10:15:00', '2025-08-01 10:20:00', 'Pending', 120.50, '123 Elm Street, City A', '2025-08-01 10:25:00', 'orders_aug01.csv'),
 (2, 102, 502, '2025-08-02 11:00:00', '2025-08-02 11:15:00', 'Shipped', 89.99, '456 Oak Avenue, City B', '2025-08-02 11:18:00', 'orders_aug02.csv'),

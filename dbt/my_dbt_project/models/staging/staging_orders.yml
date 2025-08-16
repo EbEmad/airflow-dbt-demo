@@ -1,0 +1,32 @@
+version: 2
+sources:
+  - name: raw_data
+    schema: public
+    tables:
+      - name: orders_raw
+
+models:
+  - name: staging_orders
+    description: "Staging model for raw orders data"
+    columns:
+      - name: o_id
+        description: " primary key for each order"
+      - name: cust
+        description: "Customer who placed the order"
+      - name: prod
+        description: "product ordered"
+      - name: crt
+        description: "created timestamp for the order"
+      - name: upd
+        description: "when the order was last updated"
+      - name: status
+        description: "status of the order"
+      - name: total
+        description: "total value of the order"
+      - name: addr
+        description: "address to ship to"
+      - name: load_ts
+        description: "when the row was loaded into warehouse"
+      - name: src_file
+        description: " source file of the data"
+
