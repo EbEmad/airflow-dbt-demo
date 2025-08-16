@@ -1,4 +1,25 @@
+-- Active: 1755343412388@@127.0.0.1@5433@airflow
 -- SQL script to initialize the database schema
+
+
+CREATE TABLE if not exists customers_raw (
+    cst_id      SERIAL PRIMARY KEY,
+    cst_nm    VARCHAR(100) NOT NULL,
+    emil            VARCHAR(150) UNIQUE NOT NULL,
+    ph            VARCHAR(20),
+    addr          VARCHAR(255),
+    crt_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    upd_at       TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+INSERT INTO customers_raw (cst_nm, emil, ph, addr, crt_at, upd_at)
+VALUES
+('Alice Johnson', 'alice@example.com', '123-456-7890', '123 Main St', '2023-01-01', '2023-02-01'),
+('Bob Smith', 'bob@example.com', '987-654-3210', '456 Oak St', '2023-02-01', '2023-02-10'),
+('Charlie Brown', 'charlie@example.com', '555-666-7777', '789 Pine St', '2023-03-01', '2023-03-15');
+
 create table if not exists orders_raw (
     o_id INT PRIMARY KEY,
     cust INT,

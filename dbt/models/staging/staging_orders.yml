@@ -4,9 +4,10 @@ sources:
     schema: public
     tables:
       - name: orders_raw
+      - name: customers_raw
 
 models:
-  - name: staging_orders
+  - name: stg_orders
     description: "Staging model for raw orders data"
     columns:
       - name: o_id
@@ -29,4 +30,20 @@ models:
         description: "when the row was loaded into warehouse"
       - name: src_file
         description: " source file of the data"
-
+  - name: stg_customers
+    description: "Staging model for raw customers data "
+    columns: 
+      - name: cst_id
+        description: " customer primary key"
+      - name: cst_nm
+        description: "customer name"
+      - name: emil
+        description: "customer email"
+      - name: ph
+        description: "customer phone"
+      - name: addr
+        description: "customer address"
+      - name: crt_at
+        description: "customer created timestamp"
+      - name: upd_at
+        description: "customer updated timestamp"
