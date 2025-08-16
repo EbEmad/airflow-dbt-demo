@@ -20,6 +20,47 @@ VALUES
 ('Bob Smith', 'bob@example.com', '987-654-3210', '456 Oak St', '2023-02-01', '2023-02-10'),
 ('Charlie Brown', 'charlie@example.com', '555-666-7777', '789 Pine St', '2023-03-01', '2023-03-15');
 
+
+CREATE TABLE products (
+    product_id   INT PRIMARY KEY,
+    product_name VARCHAR(150) NOT NULL,
+    category     VARCHAR(100),
+    price        DECIMAL(10,2) NOT NULL,
+    created_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at   TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO products (product_id, product_name, category, price, created_at, updated_at)
+VALUES
+(1, 'Laptop Pro 15"', 'Electronics', 1200.00, '2023-01-01', '2023-01-05'),
+(2, 'Wireless Mouse', 'Electronics', 25.00, '2023-01-02', '2023-01-06'),
+(3, 'Office Chair', 'Furniture', 150.00, '2023-01-03', '2023-01-07'),
+(4, 'Water Bottle', 'Accessories', 12.00, '2023-01-04', '2023-01-08');
+
+
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY,
+    order_id      INT NOT NULL,
+    product_id    INT NOT NULL,
+    quantity      INT NOT NULL CHECK (quantity > 0),
+    unit_price    DECIMAL(10,2) NOT NULL,
+    total_price   DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED, -- PostgreSQL
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders_raw(o_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+
+INSERT INTO order_items (order_item_id, order_id, product_id, quantity, unit_price, created_at)
+VALUES
+(1001, 101, 1, 1, 1200.00, '2023-02-01'),   -- Alice bought a Laptop
+(1002, 101, 2, 1, 25.00, '2023-02-01'),     -- Alice also bought a Mouse
+(1003, 102, 4, 2, 12.00, '2023-02-15'),     -- Alice bought 2 Bottles
+(1004, 103, 3, 1, 150.00, '2023-02-20'),    -- Bob bought an Office Chair
+(1005, 104, 2, 2, 25.00, '2023-03-01');     -- Alice bought 2 Mice
+
+
+
 create table if not exists orders_raw (
     o_id INT PRIMARY KEY,
     cust INT,
