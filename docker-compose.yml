@@ -19,13 +19,12 @@ services:
       context: .
       dockerfile: Dockerfile
       target: airflow
-    restart: always
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__WEBSERVER__SECRET_KEY=mysecretkey
       - AIRFLOW__CORE__FERNET_KEY=GgyJ5jUehSy2zQqY958eUWW1ezEgNp4OerBy-AKuD14=
-      - DBT_PROFILES_DIR=/opt/airflow/snowflake_data_project/profiles
+      - DBT_PROFILES_DIR=/opt/airflow/dbt/profiles
       - PYTHONPATH=/opt/airflow
     volumes:
       - ./airflow/dags:/opt/airflow/dags
@@ -35,23 +34,22 @@ services:
     ports:
       - "8080:8080"
     entrypoint: /Airflow.sh
-    command: webserver
     depends_on:
       - dbt
       - postgres
+    command: webserver
 
   scheduler:
     build:
       context: .
       dockerfile: Dockerfile
       target: airflow
-    restart: always
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - AIRFLOW__WEBSERVER__SECRET_KEY=mysecretkey
       - AIRFLOW__CORE__FERNET_KEY=GgyJ5jUehSy2zQqY958eUWW1ezEgNp4OerBy-AKuD14=
-      - DBT_PROFILES_DIR=/opt/airflow/snowflake_data_project/profiles
+      - DBT_PROFILES_DIR=/opt/airflow/dbt/profiles
       - PYTHONPATH=/opt/airflow
     volumes:
       - ./airflow/dags:/opt/airflow/dags
@@ -61,6 +59,7 @@ services:
     depends_on:
       - dbt
       - postgres
+    command: scheduler
 
       # DBT Service
   dbt:
@@ -72,8 +71,6 @@ services:
       - db
     volumes:
       - ./dbt:/opt/dbt
-      - ./dbt/profiles:/opt/dbt/profiles
-    working_dir: /opt/dbt
-    restart: always
+      - ./dbt/profiles:/opt/dbt/profiles                                                                                               
     entrypoint: /dbt.sh
     command: tail -f /dev/null
