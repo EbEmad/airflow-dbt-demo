@@ -1,40 +1,52 @@
-from datetime import datetime,timedelta
+from datetime import datetime, timedelta
+from pathlib import Path
+
 from airflow import DAG
+from airflow.operators.python import PythonOperator
+from airflow.operators.empty import EmptyOperator
+
+from dbt_airflow.core.config import DbtAirflowConfig, DbtProjectConfig, DbtProfileConfig
+from dbt_airflow.core.task_group import DbtTaskGroup
+from dbt_airflow.core.task import ExtraTask
+from dbt_airflow.operators.execution import ExecutionOperator
 from airflow.operators.bash import BashOperator
 
 default_args={
-    'onwer': 'Ebrahim Emad',
+    'owner': 'Ebrahim Emad',
     'depends_on_past': False,
-    'start_date': datetime(2025,8,16),
+    'start_date': datetime(2025,8,17),
     'email_on_failure': False,
     'email_on_retry': False,
     'retries':1,
     'retry_delay': timedelta(minutes=5),
 }
 
-dag=DAG(
-    'dbt_pipeline',
-    default_args=default_args,
-    description='A DAG to run DBT transformations',
-    schedule_interval=timedelta(hours=1),
+with DAG(
+    dag_id='test_dag',
+    start_date=datetime(2025, 8, 17),
     catchup=False,
-    tags=['dbt', 'data-engineering'],
-)
-
-install_deps=BashOperator(
-    task_id='install_dbt_deps',
-    bash_command='cd /opt/airflow/dbt && dbt deps',
-    dag=dag,
-)
-debug_connection=BashOperator(
+    tags=['staging','marts'],
+    default_args={
+        'owner': 'airflow',
+        'retries': 1,
+        'retry_delay': timedelta(minutes=2),
+    },
+) as dag:
+    debug_connection = BashOperator(
     task_id='debug_connection',
     bash_command='cd /opt/airflow/dbt && dbt debug',
     dag=dag,
-)
-run_models = BashOperator(
-    task_id='run_dbt_models',
-    bash_command='cd /opt/airflow/dbt && dbt run',
-    dag=dag,
-)
+        )
+    tg=DbtTaskGroup(
+        group_id='dbt_task_group',
+        dbt_project_config=DbtProjectConfig(
+            project_path=Path('/opt/airflow/dbt'),
+            manifest_path=Path('/opt/airflow/dbt/target/manifest.json')
+        ),
+        dbt_profile_config=DbtProfileConfig(
+            profiles_path=Path('/opt/airflow/dbt/profiles'),
+            target='dev',
+        )
+    )
 
-install_deps >> debug_connection  >> run_models 
+    debug_connection >> tg
