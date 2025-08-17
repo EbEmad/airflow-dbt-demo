@@ -1,6 +1,6 @@
 FROM apache/airflow:2.5.1 as airflow
 
-COPY requirements-ariflow.txt /requirements.txt
+COPY requirements.txt /requirements.txt
 # Install Python dependencies
 RUN pip install --no-cache-dir -r /requirements.txt
 
