@@ -38,27 +38,6 @@ VALUES
 (4, 'Water Bottle', 'Accessories', 12.00, '2023-01-04', '2023-01-08');
 
 
-CREATE TABLE order_items (
-    order_item_id INT PRIMARY KEY,
-    order_id      INT NOT NULL,
-    product_id    INT NOT NULL,
-    quantity      INT NOT NULL CHECK (quantity > 0),
-    unit_price    DECIMAL(10,2) NOT NULL,
-    total_price   DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED, -- PostgreSQL
-    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (order_id) REFERENCES orders_raw(o_id),
-    FOREIGN KEY (product_id) REFERENCES products(product_id)
-);
-
-
-INSERT INTO order_items (order_item_id, order_id, product_id, quantity, unit_price, created_at)
-VALUES
-(1001, 101, 1, 1, 1200.00, '2023-02-01'),   -- Alice bought a Laptop
-(1002, 101, 2, 1, 25.00, '2023-02-01'),     -- Alice also bought a Mouse
-(1003, 102, 4, 2, 12.00, '2023-02-15'),     -- Alice bought 2 Bottles
-(1004, 103, 3, 1, 150.00, '2023-02-20'),    -- Bob bought an Office Chair
-(1005, 104, 2, 2, 25.00, '2023-03-01');     -- Alice bought 2 Mice
-
 
 
 create table if not exists orders_raw (
@@ -84,3 +63,27 @@ INSERT INTO orders_raw (
 (3, 103, 503, '2025-08-03 09:45:00', '2025-08-03 09:50:00', 'Delivered', 45.75, '789 Pine Road, City C', '2025-08-03 09:55:00', 'orders_aug03.csv'),
 (4, 104, 504, '2025-08-04 14:30:00', '2025-08-04 14:35:00', 'Cancelled', 200.00, '321 Maple Blvd, City D', '2025-08-04 14:40:00', 'orders_aug04.csv'),
 (5, 105, 505, '2025-08-05 16:10:00', '2025-08-05 16:15:00', 'Pending', 300.25, '654 Cedar Lane, City E', '2025-08-05 16:18:00', 'orders_aug05.csv');
+
+
+
+
+CREATE TABLE order_items (
+    order_item_id INT PRIMARY KEY,
+    order_id      INT NOT NULL,
+    product_id    INT NOT NULL,
+    quantity      INT NOT NULL CHECK (quantity > 0),
+    unit_price    DECIMAL(10,2) NOT NULL,
+    total_price   DECIMAL(10,2) GENERATED ALWAYS AS (quantity * unit_price) STORED, -- PostgreSQL
+    created_at    TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (order_id) REFERENCES orders_raw(o_id),
+    FOREIGN KEY (product_id) REFERENCES products(product_id)
+);
+
+
+INSERT INTO order_items (order_item_id, order_id, product_id, quantity, unit_price, created_at)
+VALUES
+(1001, 1, 1, 1, 1200.00, '2023-02-01 00:00:00'),   -- Alice bought a Laptop
+(1002, 1, 2, 1, 25.00,   '2023-02-01 00:00:00'),   -- Alice also bought a Mouse
+(1003, 2, 4, 2, 12.00,   '2023-02-15 00:00:00'),   -- Alice bought 2 Bottles
+(1004, 3, 3, 1, 150.00,  '2023-02-20 00:00:00'),   -- Bob bought an Office Chair
+(1005, 4, 2, 2, 25.00,   '2023-03-01 00:00:00');   -- Alice bought 2 Mice
